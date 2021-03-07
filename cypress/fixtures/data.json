@@ -1,0 +1,5 @@
+{
+  "baseUrl": "http://192.168.1.127:8080",
+  "email": "hello@cypress.io",
+  "body": "Fixtures are a great way to mock data for responses to routes"
+}
