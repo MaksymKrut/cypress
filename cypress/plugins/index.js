@@ -16,7 +16,22 @@
  * @type {Cypress.PluginConfig}
  */
 // eslint-disable-next-line no-unused-vars
+const { downloadFile } = require('cypress-downloadfile/lib/addPlugin')
+const fs = require('fs')
+
 module.exports = (on, config) => {
-  // `on` is used to hook into various events Cypress emits
-  // `config` is the resolved Cypress config
+  on('task', { downloadFile })
+  on('task', {
+    getFilesNames (folderName) {
+      return new Promise((resolve, reject) => {
+        fs.readdir(folderName, (err, files) => {
+          if (err) {
+            return reject(err)
+          }
+
+          resolve(files)
+        })
+      })
+    },
+  })
 }

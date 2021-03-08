@@ -1,7 +1,9 @@
 node_modules
+.DS_Store
 *.log
 *.aes
 cypress/screenshots
+cypress/downloads
 cypress/videos
 cypress/logs
 .history

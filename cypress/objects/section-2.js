@@ -1,37 +1,45 @@
 const Section2 = {
-  /**
-   * A literal is considered static, stable strings (eg. titles, form labels, ...)
-   */
   literals: {
-    SAMPLE_LITERAL: 'This is a sample literal. You can safely delete it.',
+    todoResponse: null,
   },
-
-  /**
-   * An element is a selector for any DOM element (eg. [data-test="xxx"], #id, ...)
-   */
   elements: {
-    sampleElement: '[data-test=sample-element-to-be-safely-deleted]',
+    networkCallButton: '#network-call-button',
+    newTabButton: '#new-tab-button',
+    fileDownloadButton: '#file-download-button',
   },
-
-  /**
-   * An action should be pretty self explanatory! It consists of all the method performing
-   * a particular action from clicking a simple button to doing complex assertions.
-   */
   actions: {
-    /**
-     * Example of action.
-     * In this example, we are grabbing a sample element, clicking on it and asserting the api answer.
-     *
-     * This is only used as an example and can be safely deleted.
-     */
-    assertSampleApiResponse () {
-      cy.server()
-      cy.wait('/endpoint').as('endpoint')
+    clickNetworkCallButton () {
+      cy.intercept('GET', '/todos/*').as('todos')
+      cy.get(Section2.elements.networkCallButton).click()
+      cy.wait('@todos', { timeout: 60000 })
+        .then(({ request, response }) => {
+          Section2.literals.todoResponse = response
+        })
+    },
+    assertTodoResponseStatus () {
+      const response = Section2.literals.todoResponse
 
-      cy.get(Section2.elements.sampleElement).click()
-      // ... An api call to "/endpoint" performed on the app.
-      cy.wait('@endpoint').should((request) => {
-        expect(request.status).to.eq(200)
+      if (!response) {
+        throw new Error('Response was not received!')
+      }
+
+      expect(response.statusCode).to.eq(200)
+    },
+    assertTodoResponseObject () {
+      const response = Section2.literals.todoResponse
+
+      if (!response) {
+        throw new Error('Response was not received!')
+      }
+
+      expect(response.body, 'response body').to.deep.equal({
+        id: 1,
+        title: 'Abnormally long network call!',
+      })
+    },
+    assertFileDownloaded () {
+      cy.task('getFilesNames', 'cypress/downloads').then((names) => {
+        expect(names).to.include('js-logo.jpg')
       })
     },
   },
